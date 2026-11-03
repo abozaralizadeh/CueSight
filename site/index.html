@@ -36,6 +36,15 @@
     }
     main { max-width: 860px; margin: 0 auto; padding: 48px 16px 64px; }
     header { display: flex; align-items: center; gap: 16px; }
+    header .repo {
+      margin-left: auto; text-decoration: none; font-weight: 600; font-size: 15px;
+      padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); white-space: nowrap;
+    }
+    video { width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block; background: #000; }
+    .badge {
+      display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase;
+      color: var(--accent); border: 1px solid var(--accent); border-radius: 6px; padding: 1px 6px; margin-right: 6px;
+    }
     header img { width: 64px; height: 64px; border-radius: 14px; }
     h1 { font-size: 40px; margin: 0; letter-spacing: -0.5px; }
     h2 { font-size: 24px; margin: 48px 0 12px; }
@@ -72,14 +81,15 @@
   <header>
     <img src="img/icon.png" alt="">
     <h1>CueSight</h1>
+    <a class="repo" href="https://github.com/abozaralizadeh/CueSight">GitHub repo</a>
   </header>
   <p class="lead">Point your iPhone at a pool or snooker table and see the shot drawn on the camera picture: where the balls go, where to aim and how hard to hit.</p>
 
   <p class="note">Early days. The app runs end to end in the iOS Simulator on a generated table, but it hasn't been tested on a real table or a real iPhone yet. The screenshots below are from the Simulator.</p>
 
   <figure>
-    <img src="img/07-shots.jpg" alt="Three shot options drawn on a pool table, with lines for the cue ball and object ball and a ghost ball at the aiming point">
-    <figcaption>Shot options on the demo table. White is the cue ball's path, yellow the object ball's, and dashed light blue where the cue ball goes after contact.</figcaption>
+    <video src="media/demo.mp4" poster="img/demo-poster.jpg" controls muted loop playsinline preload="metadata" aria-label="Demo of the app: tapping the table corners, scanning the balls, picking a shot and lining up behind the cue ball"></video>
+    <figcaption><span class="badge">Demo</span>A real run of the app in the iOS Simulator, on its generated demo table, so no camera is involved. The scan is sped up 4 times. White is the cue ball's path, yellow the object ball's, and dashed light blue where the cue ball goes after contact.</figcaption>
   </figure>
 
   <h2>How it works</h2>
@@ -125,9 +135,12 @@ swift test</code></pre>
   <p>The shot engine and the ball detector run on the Mac with no phone, against generated tables with lamps, shadows, noise and hand shake.</p>
 
   <h2>Help wanted</h2>
-  <p>The big open question is accuracy on a real table. If you have an iPhone and a table, a scan plus ruler measurements of the balls is the most useful thing you can share. See the README for the <code>compare</code> tool.</p>
+  <p>The big open question is accuracy on a real table. If you have an iPhone and a table, a scan plus ruler measurements of the balls is the most useful thing you can share. See the <a href="https://github.com/abozaralizadeh/CueSight#run-the-tests">README</a> for the <code>compare</code> tool, and <a href="https://github.com/abozaralizadeh/CueSight/blob/main/CONTRIBUTING.md">CONTRIBUTING</a> before sending code.</p>
 
-  <footer>CueSight is a working name. License to be decided.</footer>
+  <h2>License</h2>
+  <p>Source available, free for non-commercial use, under the <a href="https://github.com/abozaralizadeh/CueSight/blob/main/LICENSE">PolyForm Noncommercial License 1.0.0</a>. Commercial use needs written permission: ask by <a href="https://github.com/abozaralizadeh/CueSight/issues">opening a GitHub issue</a>. Docs, screenshots and the demo video are under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+
+  <footer>CueSight is a working name. <a href="https://github.com/abozaralizadeh/CueSight">Source on GitHub</a>. Free for non-commercial use (PolyForm Noncommercial 1.0.0).</footer>
 </main>
 </body>
 </html>

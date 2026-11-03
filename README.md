@@ -2,9 +2,13 @@
 
 An iPhone app for pool and snooker. Point your phone at the table and it draws the shot on the camera picture: where the cue ball goes, where the object ball goes, where to aim, and how hard to hit.
 
-CueSight is a working name.
+![Demo: tap the corners, scan the balls, pick a shot, then line up behind the cue ball](docs/media/demo.gif)
 
-![Shot options on the demo table](docs/screenshots/07-shots.png)
+The demo is a real run of the app in the iOS Simulator, on its generated demo table (no camera there). The scan part is sped up 4 times. There's a sharper [MP4 version](docs/media/demo.mp4).
+
+Project site: **[abozaralizadeh.github.io/CueSight](https://abozaralizadeh.github.io/CueSight/)**
+
+CueSight is a working name. It's source available and free for non-commercial use, under [PolyForm Noncommercial 1.0.0](LICENSE).
 
 ## Status
 
@@ -119,11 +123,17 @@ open "$(xcrun simctl get_app_container booted com.example.cuesight data)/Library
 
 ## Contributing
 
-The most useful help right now is real-world testing: run a scan on a real table, measure the balls with a ruler, and share the `compare` output. Bug reports and small pull requests are welcome too. Please run `swift test` and `scripts/privacy_check.sh` before sending a change, and keep camera frames on the phone.
+The most useful help right now is real-world testing: run a scan on a real table, measure the balls with a ruler, and share the `compare` output. Bug reports and small pull requests are welcome too. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first, run `swift test` and `scripts/privacy_check.sh` before sending a change, and keep camera frames on the phone.
 
 ## License
 
-To be decided. Until a license is added, the code isn't licensed for reuse.
+CueSight is source available and free for non-commercial use, under the [PolyForm Noncommercial License 1.0.0](LICENSE). You can use it, change it and study it for personal, research, teaching and other non-commercial purposes. It isn't open source in the strict sense, because commercial use isn't allowed.
+
+Commercial use needs written permission. To ask, [open a GitHub issue](https://github.com/abozaralizadeh/CueSight/issues).
+
+The docs, screenshots and demo video are under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
+
+The app uses only Apple's own frameworks, with no third-party code, models or assets, so there are no third-party notices yet.
 
 ## More
 
