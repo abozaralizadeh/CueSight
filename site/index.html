@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CueSight</title>
+  <meta name="description" content="An iPhone app that draws pool and snooker shots on the camera picture.">
+  <link rel="icon" href="img/icon.png">
+  <style>
+    :root {
+      --bg: #f6f7f5;
+      --text: #17201a;
+      --muted: #56615a;
+      --card: #ffffff;
+      --line: #dfe4df;
+      --accent: #1f7a45;
+      --code-bg: #eef1ee;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1411;
+        --text: #e8ede9;
+        --muted: #9aa69e;
+        --card: #18201b;
+        --line: #2a342e;
+        --accent: #5fd08a;
+        --code-bg: #1d2620;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    main { max-width: 860px; margin: 0 auto; padding: 48px 16px 64px; }
+    header { display: flex; align-items: center; gap: 16px; }
+    header img { width: 64px; height: 64px; border-radius: 14px; }
+    h1 { font-size: 40px; margin: 0; letter-spacing: -0.5px; }
+    h2 { font-size: 24px; margin: 48px 0 12px; }
+    .lead { font-size: 21px; color: var(--muted); margin: 20px 0 0; }
+    .note {
+      margin-top: 24px; padding: 14px 18px; border-radius: 12px;
+      background: var(--card); border: 1px solid var(--line); color: var(--muted); font-size: 15px;
+    }
+    figure { margin: 32px 0 0; }
+    figure img { width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block; }
+    figcaption { color: var(--muted); font-size: 14px; margin-top: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+    .grid img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+    .grid figcaption { font-size: 13px; }
+    ol { padding-left: 22px; }
+    li { margin: 6px 0; }
+    pre {
+      background: var(--code-bg); border-radius: 10px; padding: 14px 16px;
+      overflow-x: auto; font-size: 14px; line-height: 1.5;
+    }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    p code, li code { background: var(--code-bg); padding: 1px 5px; border-radius: 5px; font-size: 15px; }
+    a { color: var(--accent); }
+    footer { margin-top: 56px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 16px; }
+    @media (max-width: 640px) {
+      h1 { font-size: 32px; }
+      .lead { font-size: 18px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="img/icon.png" alt="">
+    <h1>CueSight</h1>
+  </header>
+  <p class="lead">Point your iPhone at a pool or snooker table and see the shot drawn on the camera picture: where the balls go, where to aim and how hard to hit.</p>
+
+  <p class="note">Early days. The app runs end to end in the iOS Simulator on a generated table, but it hasn't been tested on a real table or a real iPhone yet. The screenshots below are from the Simulator.</p>
+
+  <figure>
+    <img src="img/07-shots.jpg" alt="Three shot options drawn on a pool table, with lines for the cue ball and object ball and a ghost ball at the aiming point">
+    <figcaption>Shot options on the demo table. White is the cue ball's path, yellow the object ball's, and dashed light blue where the cue ball goes after contact.</figcaption>
+  </figure>
+
+  <h2>How it works</h2>
+  <ol>
+    <li>Pick your table size and tap its four corners.</li>
+    <li>Walk round the table while the app scans the balls.</li>
+    <li>Check what it found and fix any ball by dragging it.</li>
+    <li>Tap a ball and see up to three shots, with where to strike the cue ball and how hard.</li>
+    <li>Walk behind the cue ball and line up. The lines are drawn from your view, and the app tells you to step left or right until you're on the line.</li>
+  </ol>
+  <figure>
+    <img src="img/14-line-up-on.jpg" alt="The view from behind the cue ball, with the aim line straight up the middle of the screen and a red dot on the cue ball where to strike it">
+    <figcaption>Lined up. The dashed line is where the cue goes, and the red dot is where to hit the cue ball.</figcaption>
+  </figure>
+  <p>Pool on 7, 8 and 9 ft tables, and snooker on full-size and 10 ft tables, with basic 8-ball and snooker rules. Everything runs on the phone. No account, no server, and camera frames are never saved or sent.</p>
+
+  <div class="grid">
+    <figure>
+      <img src="img/03-table-setup.jpg" alt="Tapping the table corners">
+      <figcaption>Tap the corners</figcaption>
+    </figure>
+    <figure>
+      <img src="img/05-scan.jpg" alt="Scanning the balls, with a coverage map">
+      <figcaption>Scan the balls</figcaption>
+    </figure>
+    <figure>
+      <img src="img/06-review.jpg" alt="Reviewing the balls that were found">
+      <figcaption>Check and fix</figcaption>
+    </figure>
+  </div>
+
+  <h2>Quick install</h2>
+  <p>You need a Mac with Xcode 16 or newer.</p>
+  <pre><code>git clone https://github.com/abozaralizadeh/CueSight.git
+cd CueSight
+open CueSight.xcodeproj</code></pre>
+  <p>Pick the CueSight scheme and an iPhone Simulator, then press Run. In the Simulator the app uses a generated demo table in place of the camera.</p>
+  <p>To run on a real iPhone (iOS 17 or newer), set your own team under Signing and change the placeholder bundle id <code>com.example.cuesight</code>.</p>
+
+  <h2>Run the tests</h2>
+  <pre><code>cd CueSightKit
+swift test</code></pre>
+  <p>The shot engine and the ball detector run on the Mac with no phone, against generated tables with lamps, shadows, noise and hand shake.</p>
+
+  <h2>Help wanted</h2>
+  <p>The big open question is accuracy on a real table. If you have an iPhone and a table, a scan plus ruler measurements of the balls is the most useful thing you can share. See the README for the <code>compare</code> tool.</p>
+
+  <footer>CueSight is a working name. License to be decided.</footer>
+</main>
+</body>
+</html>

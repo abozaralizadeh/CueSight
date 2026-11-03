@@ -1,0 +1,77 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Kit: build",
+      "type": "shell",
+      "command": "swift build",
+      "options": { "cwd": "${workspaceFolder}/CueSightKit" },
+      "group": "build",
+      "problemMatcher": ["$swiftc"]
+    },
+    {
+      "label": "Kit: test",
+      "type": "shell",
+      "command": "swift test",
+      "options": { "cwd": "${workspaceFolder}/CueSightKit" },
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": ["$swiftc"]
+    },
+    {
+      "label": "Bench: accuracy (generated scenes)",
+      "type": "shell",
+      "command": "swift run -c release cuesight-bench accuracy --table ${input:table} --scenes 6",
+      "options": { "cwd": "${workspaceFolder}/CueSightKit" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Bench: advice (simulated table)",
+      "type": "shell",
+      "command": "swift run -c release cuesight-bench advice --table ${input:table} --scenes 6",
+      "options": { "cwd": "${workspaceFolder}/CueSightKit" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Bench: demo session",
+      "type": "shell",
+      "command": "swift run -c release cuesight-bench session --table ${input:table}",
+      "options": { "cwd": "${workspaceFolder}/CueSightKit" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Privacy check",
+      "type": "shell",
+      "command": "scripts/privacy_check.sh",
+      "problemMatcher": []
+    },
+    {
+      "label": "App: generate Xcode project",
+      "type": "shell",
+      "command": "xcodegen generate",
+      "problemMatcher": []
+    },
+    {
+      "label": "App: build for Simulator",
+      "type": "shell",
+      "command": "xcodebuild -project CueSight.xcodeproj -scheme CueSight -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 16 Pro' -derivedDataPath build/DerivedData build",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "App: run in Simulator",
+      "type": "shell",
+      "dependsOn": "App: build for Simulator",
+      "command": "xcrun simctl boot 'iPhone 16 Pro' 2>/dev/null; open -a Simulator; xcrun simctl install booted build/DerivedData/Build/Products/Debug-iphonesimulator/CueSight.app && xcrun simctl launch --console booted com.example.cuesight",
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "table",
+      "type": "pickString",
+      "description": "Table",
+      "options": ["pool7", "pool8", "pool9", "snooker10", "snooker12"],
+      "default": "pool9"
+    }
+  ]
+}

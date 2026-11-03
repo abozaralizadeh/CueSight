@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug bench (accuracy)",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/CueSightKit/.build/debug/cuesight-bench",
+      "args": [
+        "accuracy",
+        "--table",
+        "pool9",
+        "--scenes",
+        "2"
+      ],
+      "cwd": "${workspaceFolder}/CueSightKit",
+      "preLaunchTask": "Kit: build"
+    },
+    {
+      "name": "Debug Kit tests",
+      "type": "swift",
+      "request": "launch",
+      "testType": "XCTest",
+      "cwd": "${workspaceFolder}/CueSightKit",
+      "preLaunchTask": "Kit: build"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+# Build output
+build/
+DerivedData/
+dist/
+target/
+.next/
+CueSightKit/.build/
+CueSightKit/.swiftpm/
+*.xcuserstate
+xcuserdata/
+
+# Dependencies
+node_modules/
+.venv/
+
+# Local settings and secrets (keep .env.example)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Models and large binaries
+*.mlmodel
+*.mlpackage/
+*.mlmodelc/
+*.onnx
+*.pt
+*.safetensors
+*.zip
+*.ipa
+
+# Databases and Docker volumes
+*.sqlite
+*.sqlite3
+*.db
+volumes/
+
+# Tools and OS files
+.claude/
+.DS_Store
