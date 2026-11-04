@@ -3,144 +3,815 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CueSight</title>
-  <meta name="description" content="An iPhone app that draws pool and snooker shots on the camera picture.">
-  <link rel="icon" href="img/icon.png">
+  <title>CueSight: see the shot before you take it</title>
+  <meta name="description" content="An iPhone app for pool and snooker. Point it at the table and it draws where the balls go, where to aim and how hard to hit.">
+  <meta name="theme-color" content="#0F3D2E">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="img/icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="img/icon.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="CueSight: see the shot before you take it">
+  <meta property="og:description" content="Point your iPhone at a pool or snooker table and see where the balls go, where to aim and how hard to hit.">
+  <meta property="og:url" content="https://abozaralizadeh.github.io/CueSight/">
+  <meta property="og:image" content="https://abozaralizadeh.github.io/CueSight/img/social.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="CueSight drawing a shot on a pool table">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CueSight: see the shot before you take it">
+  <meta name="twitter:description" content="Point your iPhone at a pool or snooker table and see where the balls go, where to aim and how hard to hit.">
+  <meta name="twitter:image" content="https://abozaralizadeh.github.io/CueSight/img/social.jpg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap">
+
+  <script>
+    // Pick the theme before the page paints, so there's no flash.
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem("theme"); } catch (e) {}
+      if (saved === "light" || saved === "dark") document.documentElement.setAttribute("data-theme", saved);
+    })();
+  </script>
+
   <style>
     :root {
-      --bg: #f6f7f5;
-      --text: #17201a;
-      --muted: #56615a;
-      --card: #ffffff;
-      --line: #dfe4df;
-      --accent: #1f7a45;
-      --code-bg: #eef1ee;
+      --felt: #0F3D2E;
+      --felt-deep: #0A2E22;
+      --walnut: #5A3A22;
+      --pot: #F2C230;
+      --pot-ink: #1B1400;
+      --chalk: #F4F1E8;
+      --aqua: #7FD3F7;
+
+      --bg: #F4F1E8;
+      --surface: #FFFFFF;
+      --surface-2: #ECE7DA;
+      --text: #14211B;
+      --muted: #56655C;
+      --line: #DDD6C6;
+      --link: #0F6B4C;
+      --shadow: 0 1px 2px rgba(20, 33, 27, 0.06), 0 12px 32px -12px rgba(20, 33, 27, 0.22);
+      --shadow-lift: 0 2px 4px rgba(20, 33, 27, 0.08), 0 24px 48px -16px rgba(20, 33, 27, 0.32);
+
+      --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+      --font-body: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+      --max: 1180px;
+      --gutter: clamp(16px, 4vw, 40px);
+      --radius: 18px;
+      color-scheme: light;
     }
     @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0f1411;
-        --text: #e8ede9;
-        --muted: #9aa69e;
-        --card: #18201b;
-        --line: #2a342e;
-        --accent: #5fd08a;
-        --code-bg: #1d2620;
+      :root:not([data-theme="light"]) {
+        --bg: #0B1C15;
+        --surface: #12291F;
+        --surface-2: #173327;
+        --text: #EAF0EA;
+        --muted: #9DB2A6;
+        --line: #234235;
+        --link: #F2C230;
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 40px -16px rgba(0, 0, 0, 0.6);
+        --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.35), 0 28px 56px -18px rgba(0, 0, 0, 0.75);
+        color-scheme: dark;
       }
     }
-    * { box-sizing: border-box; }
+    :root[data-theme="dark"] {
+      --bg: #0B1C15;
+      --surface: #12291F;
+      --surface-2: #173327;
+      --text: #EAF0EA;
+      --muted: #9DB2A6;
+      --line: #234235;
+      --link: #F2C230;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 40px -16px rgba(0, 0, 0, 0.6);
+      --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.35), 0 28px 56px -18px rgba(0, 0, 0, 0.75);
+      color-scheme: dark;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
     body {
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font: 400 17px/1.6 var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
-    main { max-width: 860px; margin: 0 auto; padding: 48px 16px 64px; }
-    header { display: flex; align-items: center; gap: 16px; }
-    header .repo {
-      margin-left: auto; text-decoration: none; font-weight: 600; font-size: 15px;
-      padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); white-space: nowrap;
+    img, video, svg { display: block; max-width: 100%; }
+    a { color: var(--link); text-underline-offset: 3px; }
+    h1, h2, h3 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; margin: 0; text-wrap: balance; }
+    .sub, .lede, .card p, .step p { text-wrap: pretty; }
+    h2 { font-size: clamp(32px, 4.2vw, 52px); }
+    h3 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; }
+    p { margin: 0; }
+    .wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+    .skip { position: absolute; left: -9999px; top: 8px; z-index: 100; background: var(--pot); color: var(--pot-ink); padding: 8px 14px; border-radius: 8px; }
+    .skip:focus { left: 8px; }
+    :focus-visible { outline: 3px solid var(--pot); outline-offset: 3px; border-radius: 6px; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      font: 600 16px/1 var(--font-body); text-decoration: none;
+      padding: 15px 22px; border-radius: 999px; border: 1px solid transparent;
+      cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     }
-    video { width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block; background: #000; }
-    .badge {
-      display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase;
-      color: var(--accent); border: 1px solid var(--accent); border-radius: 6px; padding: 1px 6px; margin-right: 6px;
+    .btn svg { width: 18px; height: 18px; flex: none; }
+    .btn-pot { background: var(--pot); color: var(--pot-ink); box-shadow: 0 8px 24px -10px rgba(242, 194, 48, 0.7); }
+    .btn-pot:hover { transform: translateY(-2px); box-shadow: 0 14px 30px -10px rgba(242, 194, 48, 0.8); }
+    .btn-ghost { background: rgba(255, 255, 255, 0.06); color: var(--chalk); border-color: rgba(244, 241, 232, 0.28); }
+    .btn-ghost:hover { background: rgba(255, 255, 255, 0.12); transform: translateY(-2px); }
+
+    /* Nav */
+    .nav { position: absolute; top: 0; left: 0; right: 0; z-index: 10; color: var(--chalk); }
+    .nav .wrap { display: flex; align-items: center; gap: 28px; height: 76px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; font: 800 21px/1 var(--font-display); letter-spacing: -0.02em; }
+    .brand svg { width: 28px; height: 28px; }
+    .nav nav { display: flex; gap: 26px; margin-left: auto; }
+    .nav nav a { color: rgba(244, 241, 232, 0.78); text-decoration: none; font-weight: 500; font-size: 15px; }
+    .nav nav a:hover { color: var(--chalk); }
+    .nav .actions { display: flex; align-items: center; gap: 10px; }
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 999px; display: grid; place-items: center;
+      background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(244, 241, 232, 0.22); color: var(--chalk); cursor: pointer;
     }
-    header img { width: 64px; height: 64px; border-radius: 14px; }
-    h1 { font-size: 40px; margin: 0; letter-spacing: -0.5px; }
-    h2 { font-size: 24px; margin: 48px 0 12px; }
-    .lead { font-size: 21px; color: var(--muted); margin: 20px 0 0; }
-    .note {
-      margin-top: 24px; padding: 14px 18px; border-radius: 12px;
-      background: var(--card); border: 1px solid var(--line); color: var(--muted); font-size: 15px;
+    .icon-btn:hover { background: rgba(255, 255, 255, 0.12); }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .gh-small { padding: 10px 16px; font-size: 14px; }
+    .theme-dark-icon { display: none; }
+    :root[data-theme="dark"] .theme-dark-icon { display: block; }
+    :root[data-theme="dark"] .theme-light-icon { display: none; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .theme-dark-icon { display: block; }
+      :root:not([data-theme="light"]) .theme-light-icon { display: none; }
     }
-    figure { margin: 32px 0 0; }
-    figure img { width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block; }
-    figcaption { color: var(--muted); font-size: 14px; margin-top: 8px; }
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
-    .grid img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
-    .grid figcaption { font-size: 13px; }
-    ol { padding-left: 22px; }
-    li { margin: 6px 0; }
-    pre {
-      background: var(--code-bg); border-radius: 10px; padding: 14px 16px;
-      overflow-x: auto; font-size: 14px; line-height: 1.5;
+
+    /* Hero: the table */
+    .hero {
+      position: relative; isolation: isolate; overflow: hidden;
+      color: var(--chalk);
+      background:
+        radial-gradient(1200px 600px at 70% 30%, rgba(255, 255, 255, 0.07), transparent 60%),
+        radial-gradient(900px 500px at 10% 90%, rgba(0, 0, 0, 0.25), transparent 60%),
+        var(--felt);
+      padding: 128px 0 0;
+      border-bottom: 14px solid var(--walnut);
+      box-shadow: inset 0 -6px 0 var(--felt-deep);
     }
-    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-    p code, li code { background: var(--code-bg); padding: 1px 5px; border-radius: 5px; font-size: 15px; }
-    a { color: var(--accent); }
-    footer { margin-top: 56px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 16px; }
+    .hero::before {
+      /* Felt nap: a fine noise, drawn once as SVG. */
+      content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.35; mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr); gap: 56px; align-items: center; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--pot); margin-bottom: 22px;
+    }
+    .eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--pot); box-shadow: 0 0 0 4px rgba(242, 194, 48, 0.18); }
+    .hero h1 { font-size: clamp(44px, 6vw, 78px); max-width: 11ch; }
+    .hero h1 em { font-style: normal; color: var(--pot); }
+    .hero .sub { font-size: clamp(18px, 1.6vw, 21px); color: rgba(244, 241, 232, 0.8); margin-top: 22px; max-width: 30ch; }
+    .hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+    .hero .fine { margin-top: 22px; font-size: 14px; color: rgba(244, 241, 232, 0.6); }
+
+    /* Landscape iPhone, in CSS */
+    .phone {
+      position: relative;
+      padding: 11px;
+      border-radius: 46px;
+      background: linear-gradient(145deg, #3A3D40, #16181A 40%, #26292C);
+      box-shadow:
+        0 0 0 1.5px #4A4D50 inset,
+        0 40px 80px -30px rgba(0, 0, 0, 0.75),
+        0 18px 40px -20px rgba(0, 0, 0, 0.6);
+      transform: rotate(-1.2deg);
+    }
+    .phone::before, .phone::after { content: ""; position: absolute; background: #2B2E31; border-radius: 3px; }
+    .phone::before { top: -3px; left: 22%; width: 13%; height: 4px; }
+    .phone::after { top: -3px; left: 38%; width: 9%; height: 4px; }
+    .screen { position: relative; overflow: hidden; border-radius: 36px; background: #000; aspect-ratio: 1280 / 588; }
+    .screen video { width: 100%; height: 100%; object-fit: cover; }
+    .island {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      width: 22px; height: 34%; border-radius: 20px; background: #000; z-index: 2;
+    }
+    .demo-tag {
+      display: inline-block; margin-right: 8px; vertical-align: 1px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--pot); border: 1px solid rgba(242, 194, 48, 0.6); padding: 2px 7px; border-radius: 999px;
+    }
+    .play-toggle {
+      position: absolute; left: 44px; bottom: 12px; z-index: 2;
+      width: 36px; height: 36px; border-radius: 50%; border: 0; cursor: pointer;
+      background: rgba(0, 0, 0, 0.6); color: #fff; display: grid; place-items: center;
+    }
+    .play-toggle svg { width: 14px; height: 14px; }
+    .play-toggle .i-play { display: none; }
+    .play-toggle[aria-pressed="true"] .i-play { display: block; }
+    .play-toggle[aria-pressed="true"] .i-pause { display: none; }
+    .demo-caption { margin-top: 18px; font-size: 13.5px; color: rgba(244, 241, 232, 0.62); text-align: center; }
+
+    /* The shot drawn along the bottom of the hero */
+    .shot { position: relative; margin-top: 36px; aspect-ratio: 1440 / 190; }
+    .shot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .shot .narrow { display: none; }
+    .shot .controls { position: absolute; right: var(--gutter); top: 6px; display: flex; align-items: center; gap: 14px; }
+    .take {
+      font: 600 14px/1 var(--font-body); color: var(--chalk);
+      background: rgba(0, 0, 0, 0.28); border: 1px solid rgba(244, 241, 232, 0.25);
+      padding: 10px 14px; border-radius: 999px; cursor: pointer;
+    }
+    .take:hover { background: rgba(0, 0, 0, 0.4); }
+    .take:disabled { opacity: 0.6; cursor: default; }
+    .score { font-size: 13px; color: rgba(244, 241, 232, 0.65); font-variant-numeric: tabular-nums; }
+    .ball { cursor: pointer; }
+    .draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw 1.4s 0.5s cubic-bezier(0.6, 0, 0.2, 1) forwards; }
+    .draw.late { animation-delay: 1.6s; animation-duration: 1s; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    .ghost { opacity: 0; animation: fade 0.5s 1.6s ease forwards; }
+    @keyframes fade { to { opacity: 1; } }
+
+    /* Sections */
+    section { padding: clamp(80px, 10vw, 136px) 0; }
+    .kicker {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+      margin-bottom: 18px;
+    }
+    .diamonds { display: inline-flex; gap: 6px; }
+    .diamonds i { width: 7px; height: 7px; background: var(--pot); transform: rotate(45deg); border-radius: 1px; }
+    .lede { font-size: 19px; color: var(--muted); max-width: 56ch; margin-top: 18px; }
+
+    .shot-frame { border-radius: 14px; overflow: hidden; background: #000; box-shadow: var(--shadow); border: 1px solid var(--line); }
+    .shot-frame img { width: 100%; height: auto; aspect-ratio: 1200 / 552; object-fit: cover; }
+
+    /* How it works */
+    .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: 56px; counter-reset: step; }
+    .step { counter-increment: step; }
+    .step .shot-frame { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .step:hover .shot-frame { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
+    .step h3 { margin-top: 24px; display: flex; align-items: baseline; gap: 12px; }
+    .step h3::before {
+      content: counter(step); flex: none;
+      width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center;
+      font: 700 14px/1 var(--font-body); background: var(--text); color: var(--bg);
+      transform: translateY(-3px);
+    }
+    .step p { color: var(--muted); margin-top: 10px; }
+
+    /* Feature spotlight */
+    .spot { background: var(--surface-2); }
+    .spot-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 64px; align-items: center; }
+    .legend { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 14px; }
+    .legend li { display: flex; gap: 14px; align-items: center; color: var(--muted); }
+    .legend .swatch { width: 34px; height: 4px; border-radius: 4px; flex: none; }
+    .legend .cue-line { background: #fff; box-shadow: 0 0 0 1.5px var(--muted); }
+    .legend .obj-line { background: var(--pot); }
+    .legend .dashed { background: repeating-linear-gradient(90deg, var(--aqua) 0 7px, transparent 7px 11px); }
+    .legend .ring { width: 16px; height: 16px; border: 2.5px solid var(--text); border-radius: 50%; margin: 0 9px; flex: none; }
+
+    /* Features */
+    .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 56px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 22px; box-shadow: var(--shadow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
+    .card .shot-frame { box-shadow: none; margin-bottom: 22px; border-radius: 10px; }
+    .card p { color: var(--muted); margin-top: 8px; font-size: 16px; }
+    .card .glyph { width: 52px; height: 52px; margin-bottom: 22px; color: var(--text); }
+    .card.small { padding: 28px; }
+
+    /* Install */
+    .install-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 64px; align-items: start; }
+    .code { position: relative; margin-top: 18px; border-radius: 14px; overflow: hidden; background: #0C1712; border: 1px solid #1F3A2E; color: #DDE7E0; }
+    .code:first-child { margin-top: 0; }
+    .code .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 10px 16px; border-bottom: 1px solid #1F3A2E; }
+    .code .bar span { font-size: 13px; color: #9FB5A9; }
+    .code pre { margin: 0; padding: 18px 18px 20px; overflow-x: auto; font: 14.5px/1.7 var(--font-mono); }
+    .code .p { color: var(--pot); user-select: none; }
+    .copy {
+      font: 600 13px/1 var(--font-body); color: #DDE7E0; background: #16291F; border: 1px solid #2A4A3B;
+      padding: 7px 11px; border-radius: 8px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; flex: none;
+    }
+    .copy:hover { background: #1D3428; }
+    .copy svg { width: 14px; height: 14px; }
+    .copy.done { color: var(--pot); border-color: var(--pot); }
+    .copy span { color: inherit !important; font-size: 13px !important; }
+    .note { margin-top: 22px; color: var(--muted); font-size: 16px; }
+    .note code { font: 14px var(--font-mono); background: var(--surface); padding: 2px 6px; border-radius: 6px; }
+
+    /* FAQ */
+    .faq-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 64px; }
+    .faq details { border-bottom: 1px solid var(--line); padding: 4px 0; }
+    .faq details:first-child { border-top: 1px solid var(--line); }
+    .faq summary { list-style: none; cursor: pointer; padding: 20px 40px 20px 0; position: relative; font: 600 19px/1.35 var(--font-body); }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after {
+      content: ""; position: absolute; right: 6px; top: 50%; width: 12px; height: 12px; margin-top: -8px;
+      border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg);
+      transition: transform 0.25s ease;
+    }
+    .faq details[open] summary::after { transform: rotate(225deg); margin-top: -2px; }
+    .faq details p { color: var(--muted); padding: 0 40px 22px 0; }
+
+    /* Call to action */
+    .cta { padding-top: 0; }
+    .cta-box {
+      position: relative; overflow: hidden; border-radius: 28px; padding: clamp(40px, 6vw, 72px);
+      background: var(--felt); color: var(--chalk); border: 10px solid var(--walnut);
+      display: grid; grid-template-columns: minmax(0, 1.3fr) auto; gap: 32px; align-items: center;
+    }
+    .cta-box h2 { font-size: clamp(30px, 3.6vw, 44px); }
+    .cta-box p { color: rgba(244, 241, 232, 0.78); margin-top: 14px; max-width: 52ch; }
+    .cta-box .pocket { position: absolute; width: 70px; height: 70px; border-radius: 50%; background: #06140F; }
+    .cta-box .pocket.tl { left: -35px; top: -35px; }
+    .cta-box .pocket.br { right: -35px; bottom: -35px; }
+
+    /* Footer */
+    footer { border-top: 1px solid var(--line); padding: 44px 0 56px; color: var(--muted); font-size: 15px; }
+    footer .wrap { display: flex; flex-wrap: wrap; gap: 24px 40px; justify-content: space-between; align-items: center; }
+    footer .brand { color: var(--text); font-size: 19px; }
+    footer .links { display: flex; gap: 22px; flex-wrap: wrap; }
+    footer a { color: var(--text); }
+    footer .legal { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; font-size: 14px; }
+
+    /* Scroll reveal */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+    .reveal.in { opacity: 1; transform: none; }
+    .no-js .reveal { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .draw, .ghost { animation: none; stroke-dashoffset: 0; opacity: 1; }
+      .btn, .card, .step .shot-frame { transition: none; }
+      .btn:hover, .card:hover, .step:hover .shot-frame { transform: none; }
+      .phone { transform: none; }
+    }
+
+    @media (max-width: 1020px) {
+      .hero-grid, .spot-grid, .install-grid, .faq-grid { grid-template-columns: minmax(0, 1fr); gap: 44px; }
+      .hero h1 { max-width: 14ch; }
+      .hero .sub { max-width: 40ch; }
+      .steps, .features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .nav nav { display: none; }
+      .nav .actions { margin-left: auto; }
+    }
     @media (max-width: 640px) {
-      h1 { font-size: 32px; }
-      .lead { font-size: 18px; }
-      .grid { grid-template-columns: 1fr; }
+      body { font-size: 16px; }
+      .hero { padding-top: 104px; }
+      .steps, .features { grid-template-columns: minmax(0, 1fr); }
+      .phone { padding: 7px; border-radius: 30px; transform: none; }
+      .screen { border-radius: 24px; }
+      .island { left: 6px; width: 14px; }
+      .play-toggle { left: 26px; bottom: 8px; width: 30px; height: 30px; }
+      .shot { aspect-ratio: 400 / 200; margin-top: 20px; }
+      .shot .wide { display: none; }
+      .shot .narrow { display: block; }
+      .score { display: none; }
+      .cta-box { grid-template-columns: minmax(0, 1fr); border-width: 7px; }
+      .gh-small span { display: none; }
+      .gh-small { padding: 10px 12px; }
+      .hero .ctas .btn { flex: 1 1 auto; justify-content: center; }
+      .faq summary { font-size: 17px; }
+      footer .legal { flex-direction: column; }
     }
   </style>
 </head>
-<body>
-<main>
-  <header>
-    <img src="img/icon.png" alt="">
-    <h1>CueSight</h1>
-    <a class="repo" href="https://github.com/abozaralizadeh/CueSight">GitHub repo</a>
-  </header>
-  <p class="lead">Point your iPhone at a pool or snooker table and see the shot drawn on the camera picture: where the balls go, where to aim and how hard to hit.</p>
+<body class="no-js">
+<a class="skip" href="#main">Skip to content</a>
 
-  <p class="note">Early days. The app runs end to end in the iOS Simulator on a generated table, but it hasn't been tested on a real table or a real iPhone yet. The screenshots below are from the Simulator.</p>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="cb" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#fff"/><stop offset="0.7" stop-color="#E9E5DA"/><stop offset="1" stop-color="#B9B3A4"/></radialGradient>
+    <radialGradient id="cue" cx="36%" cy="32%" r="72%"><stop offset="0" stop-color="#fff"/><stop offset="0.65" stop-color="#ECE8DD"/><stop offset="1" stop-color="#ABA593"/></radialGradient>
+    <radialGradient id="obj" cx="36%" cy="32%" r="72%"><stop offset="0" stop-color="#FFE38A"/><stop offset="0.6" stop-color="#F2C230"/><stop offset="1" stop-color="#A07A0A"/></radialGradient>
+    <radialGradient id="hole" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#020806"/><stop offset="1" stop-color="#0A2219"/></radialGradient>
+    <symbol id="gh" viewBox="0 0 24 24"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></symbol>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+</svg>
 
-  <figure>
-    <video src="media/demo.mp4" poster="img/demo-poster.jpg" controls muted loop playsinline preload="metadata" aria-label="Demo of the app: tapping the table corners, scanning the balls, picking a shot and lining up behind the cue ball"></video>
-    <figcaption><span class="badge">Demo</span>A real run of the app in the iOS Simulator, on its generated demo table, so no camera is involved. The scan is sped up 4 times. White is the cue ball's path, yellow the object ball's, and dashed light blue where the cue ball goes after contact.</figcaption>
-  </figure>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="CueSight, back to top">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13" fill="url(#cb)"/><circle cx="16" cy="16" r="3.2" fill="#E5483E"/></svg>
+      CueSight
+    </a>
+    <nav aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#install">Install</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="actions">
+      <button class="icon-btn" id="theme" type="button" aria-label="Switch between light and dark theme">
+        <svg class="theme-light-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="theme-dark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+      </button>
+      <a class="btn btn-ghost gh-small" href="https://github.com/abozaralizadeh/CueSight" aria-label="CueSight on GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#gh"/></svg>
+        <span>GitHub</span>
+      </a>
+    </div>
+  </div>
+</header>
 
-  <h2>How it works</h2>
-  <ol>
-    <li>Pick your table size and tap its four corners.</li>
-    <li>Walk round the table while the app scans the balls.</li>
-    <li>Check what it found and fix any ball by dragging it.</li>
-    <li>Tap a ball and see up to three shots, with where to strike the cue ball and how hard.</li>
-    <li>Walk behind the cue ball and line up. The lines are drawn from your view, and the app tells you to step left or right until you're on the line.</li>
-  </ol>
-  <figure>
-    <img src="img/14-line-up-on.jpg" alt="The view from behind the cue ball, with the aim line straight up the middle of the screen and a red dot on the cue ball where to strike it">
-    <figcaption>Lined up. The dashed line is where the cue goes, and the red dot is where to hit the cue ball.</figcaption>
-  </figure>
-  <p>Pool on 7, 8 and 9 ft tables, and snooker on full-size and 10 ft tables, with basic 8-ball and snooker rules. Everything runs on the phone. No account, no server, and camera frames are never saved or sent.</p>
+<main id="main">
+  <div class="hero" id="top">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">Pool and snooker, on iPhone</p>
+        <h1>See the shot <em>before</em> you take it.</h1>
+        <p class="sub">Point your phone at the table. CueSight draws where the balls go, where to aim and how hard to hit.</p>
+        <div class="ctas">
+          <a class="btn btn-pot" href="https://github.com/abozaralizadeh/CueSight">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#gh"/></svg>
+            View on GitHub
+          </a>
+          <a class="btn btn-ghost" href="#install">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+            Install
+          </a>
+        </div>
+        <p class="fine">Free for non-commercial use. Early days: tested in the Simulator, not yet on a real table.</p>
+      </div>
 
-  <div class="grid">
-    <figure>
-      <img src="img/03-table-setup.jpg" alt="Tapping the table corners">
-      <figcaption>Tap the corners</figcaption>
-    </figure>
-    <figure>
-      <img src="img/05-scan.jpg" alt="Scanning the balls, with a coverage map">
-      <figcaption>Scan the balls</figcaption>
-    </figure>
-    <figure>
-      <img src="img/06-review.jpg" alt="Reviewing the balls that were found">
-      <figcaption>Check and fix</figcaption>
-    </figure>
+      <figure style="margin:0">
+        <div class="phone">
+          <div class="screen">
+            <span class="island" aria-hidden="true"></span>
+            <video id="demo" muted loop playsinline preload="none" width="1280" height="588"
+                   poster="img/demo-poster.jpg" data-src="media/demo.mp4"
+                   aria-label="The app in use: tapping the table corners, scanning the balls, choosing a shot and lining up behind the cue ball"></video>
+            <button class="play-toggle" id="play" type="button" aria-label="Pause the demo" aria-pressed="false">
+              <svg class="i-pause" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="3.5" height="12" rx="1"/><rect x="8.5" y="1" width="3.5" height="12" rx="1"/></svg>
+              <svg class="i-play" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><path d="M3 1.5v11l9.5-5.5z"/></svg>
+            </button>
+          </div>
+        </div>
+        <figcaption class="demo-caption"><span class="demo-tag">Demo</span>A real run in the iOS Simulator, on the app's generated demo table. The scan is sped up.</figcaption>
+      </figure>
+    </div>
+
+    <!-- The shot, drawn the way the app draws it. Each layout says where its balls are, for the script. -->
+    <div class="shot">
+      <svg class="wide" viewBox="0 0 1440 190" role="img" aria-label="A shot drawn on the felt: the cue ball's line to a ghost ball, then the object ball's line into a pocket"
+           data-cue="330,118" data-ghost="1012,86" data-obj="1047,94.6" data-pocket="1418,186">
+        <circle cx="0" cy="206" r="46" fill="url(#hole)"/>
+        <circle cx="720" cy="210" r="38" fill="url(#hole)"/>
+        <circle cx="1440" cy="206" r="46" fill="url(#hole)"/>
+        <line class="draw" x1="330" y1="118" x2="1012" y2="86" stroke="#fff" stroke-width="5" stroke-linecap="round" style="--len: 683"/>
+        <line class="draw late" x1="1047" y1="94.6" x2="1418" y2="186" stroke="#F2C230" stroke-width="5" stroke-linecap="round" style="--len: 382"/>
+        <circle class="ghost" cx="1012" cy="86" r="17" fill="none" stroke="#fff" stroke-width="3"/>
+        <g class="obj-ball"><ellipse cx="1049" cy="106.6" rx="17" ry="6" fill="#000" opacity="0.35" filter="url(#soft)"/><circle cx="1047" cy="94.6" r="18" fill="url(#obj)"/><circle cx="1047" cy="94.6" r="7" fill="#fff" opacity="0.92"/></g>
+        <g class="cue-ball ball"><ellipse cx="332" cy="130" rx="17" ry="6" fill="#000" opacity="0.35" filter="url(#soft)"/><circle cx="330" cy="118" r="18" fill="url(#cue)"/><circle cx="330" cy="118" r="2.6" fill="#E5483E"/></g>
+      </svg>
+      <svg class="narrow" viewBox="0 0 400 200" role="img" aria-label="A shot drawn on the felt: the cue ball's line to a ghost ball, then the object ball's line into a pocket"
+           data-cue="50,140" data-ghost="262,72" data-obj="288.1,96.8" data-pocket="386,190">
+        <circle cx="0" cy="214" r="44" fill="url(#hole)"/>
+        <circle cx="400" cy="214" r="44" fill="url(#hole)"/>
+        <line class="draw" x1="50" y1="140" x2="262" y2="72" stroke="#fff" stroke-width="4" stroke-linecap="round" style="--len: 223"/>
+        <line class="draw late" x1="288.1" y1="96.8" x2="386" y2="190" stroke="#F2C230" stroke-width="4" stroke-linecap="round" style="--len: 136"/>
+        <circle class="ghost" cx="262" cy="72" r="17" fill="none" stroke="#fff" stroke-width="3"/>
+        <g class="obj-ball"><ellipse cx="290" cy="108.8" rx="16" ry="5.5" fill="#000" opacity="0.35" filter="url(#soft)"/><circle cx="288.1" cy="96.8" r="18" fill="url(#obj)"/><circle cx="288.1" cy="96.8" r="7" fill="#fff" opacity="0.92"/></g>
+        <g class="cue-ball ball"><ellipse cx="52" cy="152" rx="16" ry="5.5" fill="#000" opacity="0.35" filter="url(#soft)"/><circle cx="50" cy="140" r="18" fill="url(#cue)"/><circle cx="50" cy="140" r="2.6" fill="#E5483E"/></g>
+      </svg>
+      <div class="controls">
+        <span class="score" id="score" aria-live="polite">Potted: 0</span>
+        <button class="take" id="take" type="button">Take the shot</button>
+      </div>
+    </div>
   </div>
 
-  <h2>Quick install</h2>
-  <p>You need a Mac with Xcode 16 or newer.</p>
-  <pre><code>git clone https://github.com/abozaralizadeh/CueSight.git
-cd CueSight
-open CueSight.xcodeproj</code></pre>
-  <p>Pick the CueSight scheme and an iPhone Simulator, then press Run. In the Simulator the app uses a generated demo table in place of the camera.</p>
-  <p>To run on a real iPhone (iOS 17 or newer), set your own team under Signing and change the placeholder bundle id <code>com.example.cuesight</code>.</p>
+  <section id="how">
+    <div class="wrap">
+      <p class="kicker reveal"><span class="diamonds" aria-hidden="true"><i></i><i></i><i></i></span>How it works</p>
+      <h2 class="reveal">Three steps, about a minute.</h2>
+      <p class="lede reveal">No stand, no stickers on the table, no special lights. Just the phone in your hand.</p>
+      <div class="steps">
+        <div class="step reveal">
+          <div class="shot-frame"><picture><source type="image/avif" srcset="img/03-table-setup.avif"><img src="img/03-table-setup.jpg" width="1200" height="552" loading="lazy" decoding="async" alt="The table on screen with a prompt to tap the first corner"></picture></div>
+          <h3>Tap the four corners</h3>
+          <p>Pick your table size, then tap where the cushions meet. That's how the app learns where the table is.</p>
+        </div>
+        <div class="step reveal">
+          <div class="shot-frame"><picture><source type="image/avif" srcset="img/05-scan.avif"><img src="img/05-scan.jpg" width="1200" height="552" loading="lazy" decoding="async" alt="Scanning the balls, with a coverage map filling in"></picture></div>
+          <h3>Walk round to scan</h3>
+          <p>Hold the phone at chest height and walk along the table. A small map fills in as each part gets seen.</p>
+        </div>
+        <div class="step reveal">
+          <div class="shot-frame"><picture><source type="image/avif" srcset="img/14-line-up-on.avif"><img src="img/14-line-up-on.jpg" width="1200" height="552" loading="lazy" decoding="async" alt="The view from behind the cue ball, lined up, with a red dot where to strike"></picture></div>
+          <h3>Pick a shot, then line up</h3>
+          <p>Choose one of up to three shots. Step behind the cue ball and the app tells you when you're on the line.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <h2>Run the tests</h2>
-  <pre><code>cd CueSightKit
-swift test</code></pre>
-  <p>The shot engine and the ball detector run on the Mac with no phone, against generated tables with lamps, shadows, noise and hand shake.</p>
+  <section class="spot" id="features">
+    <div class="wrap spot-grid">
+      <div>
+        <p class="kicker reveal"><span class="diamonds" aria-hidden="true"><i></i><i></i><i></i></span>The shot, drawn for you</p>
+        <h2 class="reveal">Up to three shots, easiest first.</h2>
+        <p class="lede reveal">Each one says which pocket, how hard to hit and where on the cue ball. Tap through them and pick the one you like.</p>
+        <ul class="legend reveal">
+          <li><span class="swatch cue-line"></span>Where the cue ball goes</li>
+          <li><span class="swatch obj-line"></span>Where the object ball goes</li>
+          <li><span class="swatch dashed"></span>Where the cue ball ends up after</li>
+          <li><span class="ring"></span>The ghost ball: aim here</li>
+        </ul>
+      </div>
+      <div class="shot-frame reveal"><picture><source type="image/avif" srcset="img/07-shots.avif"><img src="img/07-shots.jpg" width="1200" height="552" loading="lazy" decoding="async" alt="A shot option on a pool table: white line to the ghost ball, yellow line into the pocket, dashed light blue line for the cue ball after contact"></picture></div>
+    </div>
+  </section>
 
-  <h2>Help wanted</h2>
-  <p>The big open question is accuracy on a real table. If you have an iPhone and a table, a scan plus ruler measurements of the balls is the most useful thing you can share. See the <a href="https://github.com/abozaralizadeh/CueSight#run-the-tests">README</a> for the <code>compare</code> tool, and <a href="https://github.com/abozaralizadeh/CueSight/blob/main/CONTRIBUTING.md">CONTRIBUTING</a> before sending code.</p>
+  <section>
+    <div class="wrap">
+      <p class="kicker reveal"><span class="diamonds" aria-hidden="true"><i></i><i></i><i></i></span>Features</p>
+      <h2 class="reveal">Made for a real night at the table.</h2>
+      <div class="features">
+        <article class="card reveal">
+          <div class="shot-frame"><picture><source type="image/avif" srcset="img/06-review.avif"><img src="img/06-review.jpg" width="1200" height="552" loading="lazy" decoding="async" alt="The review screen, with a ring on every ball that was found"></picture></div>
+          <h3>Fix any ball by hand</h3>
+          <p>Check what the scan found. Drag a ring to move a ball, add one it missed, or remove one it made up.</p>
+        </article>
+        <article class="card reveal">
+          <div class="shot-frame"><picture><source type="image/avif" srcset="img/10-lines-blue-cloth.avif"><img src="img/10-lines-blue-cloth.jpg" width="1200" height="552" loading="lazy" decoding="async" alt="Shot lines drawn on a blue cloth table"></picture></div>
+          <h3>Green, blue or red cloth</h3>
+          <p>The line colours were checked on every common cloth, so they stay easy to read off tournament green too.</p>
+        </article>
+        <article class="card reveal">
+          <div class="shot-frame"><picture><source type="image/avif" srcset="img/12-large-text.avif"><img src="img/12-large-text.jpg" width="1200" height="552" loading="lazy" decoding="async" alt="The scan screen with very large text, still fitting on screen"></picture></div>
+          <h3>Large text and VoiceOver</h3>
+          <p>Panels grow with your text size, and every shot can be read out loud.</p>
+        </article>
+        <article class="card small reveal">
+          <svg class="glyph" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+            <rect x="3" y="9" width="46" height="34" rx="5" stroke="currentColor" stroke-width="2.5"/>
+            <path d="M12 34 L30 16 L40 30" stroke="var(--pot)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="34" r="4" fill="currentColor"/>
+          </svg>
+          <h3>Off a cushion, with spin</h3>
+          <p>Kicks off one cushion, follow and draw, and a simple throw correction for when balls rub.</p>
+        </article>
+        <article class="card small reveal">
+          <svg class="glyph" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+            <circle cx="18" cy="28" r="12" stroke="currentColor" stroke-width="2.5"/>
+            <circle cx="18" cy="28" r="4.5" fill="currentColor"/>
+            <circle cx="37" cy="20" r="10" fill="var(--pot)"/>
+            <circle cx="37" cy="20" r="3.5" fill="var(--surface)"/>
+          </svg>
+          <h3>Pool and snooker</h3>
+          <p>7, 8 and 9 ft pool, full-size and 10 ft snooker, with basic 8-ball and snooker rules if you want them.</p>
+        </article>
+        <article class="card small reveal">
+          <svg class="glyph" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+            <rect x="14" y="4" width="24" height="44" rx="5" stroke="currentColor" stroke-width="2.5"/>
+            <rect x="20" y="22" width="12" height="10" rx="2" fill="var(--pot)"/>
+            <path d="M22.5 22v-3a3.5 3.5 0 0 1 7 0v3" stroke="var(--pot)" stroke-width="2.5"/>
+          </svg>
+          <h3>Stays on your phone</h3>
+          <p>No account and no server. Camera frames are never saved or sent anywhere, and a check in the repo makes sure of it.</p>
+        </article>
+      </div>
+    </div>
+  </section>
 
-  <h2>License</h2>
-  <p>Source available, free for non-commercial use, under the <a href="https://github.com/abozaralizadeh/CueSight/blob/main/LICENSE">PolyForm Noncommercial License 1.0.0</a>. Commercial use needs written permission: ask by <a href="https://github.com/abozaralizadeh/CueSight/issues">opening a GitHub issue</a>. Docs, screenshots and the demo video are under <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+  <section class="spot" id="install">
+    <div class="wrap install-grid">
+      <div>
+        <p class="kicker reveal"><span class="diamonds" aria-hidden="true"><i></i><i></i><i></i></span>Install</p>
+        <h2 class="reveal">Up and running in minutes.</h2>
+        <p class="lede reveal">You need a Mac with Xcode 16 or newer, and nothing else. It isn't on the App Store yet, so you build it yourself.</p>
+        <p class="note reveal">Pick the CueSight scheme and an iPhone Simulator, then press Run. The Simulator gets a generated demo table in place of the camera. For a real iPhone (iOS 17 or newer), set your own team under Signing and change the bundle id from <code>com.example.cuesight</code>.</p>
+      </div>
+      <div class="reveal">
+        <div class="code">
+          <div class="bar"><span>Get it and open it</span><button class="copy" type="button" data-copy="git clone https://github.com/abozaralizadeh/CueSight.git&#10;cd CueSight&#10;open CueSight.xcodeproj"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="2"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg><span>Copy</span></button></div>
+          <pre><code><span class="p">$ </span>git clone https://github.com/abozaralizadeh/CueSight.git
+<span class="p">$ </span>cd CueSight
+<span class="p">$ </span>open CueSight.xcodeproj</code></pre>
+        </div>
+        <div class="code">
+          <div class="bar"><span>Run the tests, no phone needed</span><button class="copy" type="button" data-copy="cd CueSightKit&#10;swift test"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="2"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg><span>Copy</span></button></div>
+          <pre><code><span class="p">$ </span>cd CueSightKit
+<span class="p">$ </span>swift test</code></pre>
+        </div>
+        <div class="code">
+          <div class="bar"><span>Run the app&#39;s scan on a generated table</span><button class="copy" type="button" data-copy="swift run -c release cuesight-bench session --table pool8"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="2"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg><span>Copy</span></button></div>
+          <pre><code><span class="p">$ </span>swift run -c release cuesight-bench session --table pool8</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <footer>CueSight is a working name. <a href="https://github.com/abozaralizadeh/CueSight">Source on GitHub</a>. Free for non-commercial use (PolyForm Noncommercial 1.0.0).</footer>
+  <section id="faq">
+    <div class="wrap faq-grid">
+      <div>
+        <p class="kicker reveal"><span class="diamonds" aria-hidden="true"><i></i><i></i><i></i></span>FAQ and limits</p>
+        <h2 class="reveal">The honest bit.</h2>
+        <p class="lede reveal">It's early. Here's where things really stand.</p>
+      </div>
+      <div class="faq reveal">
+        <details open>
+          <summary>Has it been tested on a real table?</summary>
+          <p>Not yet. Every number so far comes from generated tables on a Mac, with lamps, shadows, noise and hand shake added. A real table and a tape measure are next.</p>
+        </details>
+        <details>
+          <summary>How accurate is it?</summary>
+          <p>On generated 9 ft tables, half the balls are found within about 2 mm of where they really are, and 95% within about 4 mm. Red cloth is the weak spot: maroon balls blend in, so only about 93% get found and you add the rest by hand. Real-world numbers are still unknown.</p>
+        </details>
+        <details>
+          <summary>Which iPhones will it run on?</summary>
+          <p>Any iPhone on iOS 17 or newer, because it uses ARKit. You don't need LiDAR. The camera code builds for a real phone but hasn't run on one yet.</p>
+        </details>
+        <details>
+          <summary>Is it on the App Store?</summary>
+          <p>No. For now you build it from the source with Xcode.</p>
+        </details>
+        <details>
+          <summary>Does it send anything anywhere?</summary>
+          <p>No. There's no account and no server, and camera frames never leave the phone. A script in the repo fails if networking or image saving ever sneaks into the app.</p>
+        </details>
+        <details>
+          <summary>Can I use it in a commercial product?</summary>
+          <p>Not without permission. It's source available and free for non-commercial use, under PolyForm Noncommercial 1.0.0. To ask about commercial use, <a href="https://github.com/abozaralizadeh/CueSight/issues">open a GitHub issue</a>.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap">
+      <div class="cta-box reveal">
+        <span class="pocket tl" aria-hidden="true"></span><span class="pocket br" aria-hidden="true"></span>
+        <div>
+          <h2>Got a table and a tape measure?</h2>
+          <p>The most useful help right now is a real scan, plus ruler measurements of where the balls actually are. The repo has a tool that compares the two.</p>
+        </div>
+        <a class="btn btn-pot" href="https://github.com/abozaralizadeh/CueSight/issues">Share a test</a>
+      </div>
+    </div>
+  </section>
 </main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="CueSight, back to top">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13" fill="url(#cb)"/><circle cx="16" cy="16" r="3.2" fill="#E5483E"/></svg>
+      CueSight
+    </a>
+    <div class="links">
+      <a href="https://github.com/abozaralizadeh/CueSight">GitHub repo</a>
+      <a href="https://github.com/abozaralizadeh/CueSight/blob/main/LICENSE">License</a>
+      <a href="https://github.com/abozaralizadeh/CueSight/blob/main/CONTRIBUTING.md">Contributing</a>
+      <a href="https://github.com/abozaralizadeh/CueSight/issues">Issues</a>
+    </div>
+    <div class="legal">
+      <span>Source available, free for non-commercial use (PolyForm Noncommercial 1.0.0). Docs and media under CC BY-NC 4.0. CueSight is a working name.</span>
+      <span>Made by <a href="https://abozaralizadeh.github.io">Abozar Alizadeh</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.body.classList.remove("no-js");
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Theme toggle. The saved choice is only a convenience, so storage errors are ignored.
+  document.getElementById("theme").addEventListener("click", function () {
+    var root = document.documentElement;
+    var current = root.getAttribute("data-theme") ||
+      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    var next = current === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem("theme", next); } catch (e) {}
+  });
+
+  // Scroll reveals.
+  var items = document.querySelectorAll(".reveal");
+  if (reduced || !("IntersectionObserver" in window)) {
+    items.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var seen = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); seen.unobserve(e.target); }
+      });
+    }, { rootMargin: "0px 0px -8% 0px" });
+    items.forEach(function (el) { seen.observe(el); });
+  }
+
+  // The demo video loads after the page, and only plays while it's on screen.
+  var video = document.getElementById("demo");
+  var play = document.getElementById("play");
+  var paused = reduced;
+  function setButton() {
+    play.setAttribute("aria-pressed", paused ? "true" : "false");
+    play.setAttribute("aria-label", paused ? "Play the demo" : "Pause the demo");
+  }
+  function load() { if (!video.getAttribute("src")) video.src = video.dataset.src; }
+  setButton();
+  window.addEventListener("load", function () {
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting && !paused) { load(); video.play().catch(function () {}); }
+          else { video.pause(); }
+        });
+      }, { threshold: 0.25 }).observe(video);
+    } else if (!paused) {
+      load(); video.play().catch(function () {});
+    }
+  });
+  play.addEventListener("click", function () {
+    paused = !paused;
+    setButton();
+    if (paused) { video.pause(); } else { load(); video.play().catch(function () {}); }
+  });
+
+  // Take the shot: the cue ball rolls to the ghost ball, then the object ball drops into the pocket.
+  var take = document.getElementById("take");
+  var score = document.getElementById("score");
+  var potted = 0, busy = false;
+  function point(svg, name) { return svg.getAttribute("data-" + name).split(",").map(Number); }
+  function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function animate(ms, step) {
+    return new Promise(function (done) {
+      if (reduced) { step(1); return done(); }
+      var start = performance.now();
+      function frame(now) {
+        var t = Math.min(1, (now - start) / ms);
+        step(t);
+        if (t < 1) requestAnimationFrame(frame); else done();
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function shoot() {
+    if (busy) return;
+    var svg = Array.prototype.find.call(document.querySelectorAll(".shot svg"), function (s) { return s.getBoundingClientRect().width > 0; });
+    if (!svg) return;
+    busy = true;
+    take.disabled = true;
+    var c = point(svg, "cue"), g = point(svg, "ghost"), o = point(svg, "obj"), p = point(svg, "pocket");
+    var cue = svg.querySelector(".cue-ball"), obj = svg.querySelector(".obj-ball");
+    animate(900, function (t) {
+      var k = ease(t);
+      cue.setAttribute("transform", "translate(" + (g[0] - c[0]) * k + "," + (g[1] - c[1]) * k + ")");
+    }).then(function () {
+      return animate(650, function (t) {
+        var k = 1 - Math.pow(1 - t, 2);
+        var x = o[0] + (p[0] - o[0]) * k, y = o[1] + (p[1] - o[1]) * k;
+        var s = 1 - 0.75 * Math.max(0, (t - 0.7) / 0.3);
+        obj.setAttribute("transform", "translate(" + x + "," + y + ") scale(" + s + ") translate(" + -o[0] + "," + -o[1] + ")");
+        obj.style.opacity = t > 0.85 ? String(Math.max(0, 1 - (t - 0.85) / 0.15)) : "1";
+      });
+    }).then(function () {
+      potted += 1;
+      score.textContent = "Potted: " + potted;
+      take.textContent = potted === 1 ? "Again" : "Take the shot";
+      return wait(reduced ? 500 : 800);
+    }).then(function () {
+      cue.removeAttribute("transform");
+      obj.removeAttribute("transform");
+      obj.style.opacity = "0";
+      return animate(400, function (t) { obj.style.opacity = String(t); });
+    }).then(function () {
+      obj.style.opacity = "";
+      busy = false;
+      take.disabled = false;
+    });
+  }
+  take.addEventListener("click", shoot);
+  document.querySelectorAll(".shot .cue-ball").forEach(function (b) { b.addEventListener("click", shoot); });
+
+  // Copy buttons on the code blocks.
+  document.querySelectorAll(".copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var text = btn.getAttribute("data-copy");
+      var label = btn.querySelector("span");
+      function ok() {
+        btn.classList.add("done"); label.textContent = "Copied";
+        setTimeout(function () { btn.classList.remove("done"); label.textContent = "Copy"; }, 1600);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(ok, function () { label.textContent = "Select and copy"; });
+      } else {
+        label.textContent = "Select and copy";
+      }
+    });
+  });
+</script>
 </body>
 </html>
